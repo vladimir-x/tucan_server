@@ -15,8 +15,8 @@ class WebSocketConfig: WebSocketConfigurer {
 
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
         registry.addHandler(SocketHandler(), "/name")
-            .setAllowedOrigins("*")
-            //.setAllowedOrigins("https://tukanchick.herokuapp.com","http://localhost:8080/")
+            //.setAllowedOrigins("*")
+            .setAllowedOrigins("https://tukanchick.herokuapp.com","http://localhost:8080/")
     }
 
 

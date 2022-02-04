@@ -54,6 +54,7 @@
         function custom() {
 
 
+            //let socket = new WebSocket("ws://localhost:5000/name");  // както это сработало на heroku
             let socket = new WebSocket("ws://localhost:5000/name");
             socket.onopen = function (e) {
                 alert("[open]");
