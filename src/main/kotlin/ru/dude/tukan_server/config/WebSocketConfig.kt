@@ -11,12 +11,14 @@ import ru.dude.tukan_server.controller.SocketHandler
  */
 @Configuration
 @EnableWebSocket
-class WebSocketConfig: WebSocketConfigurer {
+class WebSocketConfig(
+    val socketHandler: SocketHandler
+): WebSocketConfigurer {
 
     override fun registerWebSocketHandlers(registry: WebSocketHandlerRegistry) {
-        registry.addHandler(SocketHandler(), "/name")
+        registry.addHandler(socketHandler, "/exchange")
             //.setAllowedOrigins("*")
-            .setAllowedOrigins("https://tukanchick.herokuapp.com","http://localhost:8080/")
+            .setAllowedOrigins("https://tukanchick.herokuapp.com","http://localhost:8080/","http://192.168.1.68:8080/")
     }
 
 
