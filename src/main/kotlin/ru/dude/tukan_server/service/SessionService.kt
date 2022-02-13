@@ -4,6 +4,7 @@ import com.fasterxml.jackson.databind.ObjectMapper
 import org.springframework.stereotype.Service
 import org.springframework.web.socket.TextMessage
 import org.springframework.web.socket.WebSocketSession
+import ru.dude.tukan_server.dto.BaseDto
 import ru.dude.tukan_server.entity.Message
 import ru.dude.tukan_server.enums.Command
 import java.util.concurrent.ConcurrentHashMap
@@ -28,7 +29,7 @@ class SessionService(
         sessions.remove(session.id)
     }
 
-    fun send(sessionId: String, command: Command, data: Any?) {
+    fun send(sessionId: String, command: Command, data: BaseDto?) {
         val payload = objectMapper.writeValueAsString(Message(command, data))
         sessions[sessionId]?.sendMessage(TextMessage(payload))
         println("[socket send] $sessionId $payload")

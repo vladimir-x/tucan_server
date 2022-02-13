@@ -1,6 +1,9 @@
 package ru.dude.tukan_server.service
 
 import org.springframework.stereotype.Service
+import ru.dude.tukan_server.converter.Converters
+import ru.dude.tukan_server.dto.JoinToLobbyDto
+import ru.dude.tukan_server.dto.MemberDto
 import ru.dude.tukan_server.entity.Lobby
 import ru.dude.tukan_server.entity.Member
 import ru.dude.tukan_server.enums.Command
@@ -19,39 +22,64 @@ class LobbyService(val sessionService: SessionService) {
     val lobbies: ConcurrentMap<String, Lobby> = ConcurrentHashMap()
 
     // если будет часто использоваться то ещё один мэп завести
-    private fun getLobbyById(lobbyId: String) = lobbies.values.firstOrNull { it.lobbyId == lobbyId }
+    private fun getLobbyById(lobbyId: String?) = lobbies.values.firstOrNull { it.lobbyId == lobbyId }
 
-    fun createLobby(hostSessionId: String, data: Any?) {
+    fun createLobby(hostSessionId: String, data: MemberDto?) {
         lobbies.computeIfAbsent(hostSessionId) {
             Lobby(hostSessionId).apply {
-                members.add(Member(hostSessionId, ""))
+                members.add(Member(hostSessionId, data?.name.orEmpty()))
             }
         }
 
-        sessionService.send(hostSessionId, Command.CREATE_LOBBY_SUCCESS, lobbies[hostSessionId]?.lobbyId)
+        lobbies[hostSessionId]?.let {
+            sessionService.send(hostSessionId, Command.CREATE_LOBBY_SUCCESS, Converters.toLobbyDto(it))
+        }
     }
 
     fun closeLobby(hostSessionId: String) {
+        lobbies[hostSessionId]?.members?.forEach {
+            sessionService.send(it.sessionId, Command.CLOSE_LOBBY_SUCCESS, null)
+        }
+
         lobbies.remove(hostSessionId)
     }
 
-    fun joinToLobby(sessionId: String, data: Any?) {
-        val lobbyId: String = data.toString()
-        getLobbyById(lobbyId)?.let {
-            val member = Member(sessionId, "")
+    fun closeMultiplayer(sessionId: String) {
+        closeLobby(sessionId)
+
+        lobbies.values.forEach { lobby ->
+
+            val member = lobby.members.firstOrNull { m -> m.sessionId == sessionId }
+            if (member != null){
+                lobby.members.remove(member)
+
+                lobby.members.forEach {
+                    sessionService.send(it.sessionId, Command.LEAVE_PARTY_MEMBER_SUCCESS, Converters.toLobbyDto(lobby))
+                }
+            }
+        }
+    }
+
+    fun joinToLobby(sessionId: String, data: JoinToLobbyDto?) {
+        getLobbyById(data?.lobbyId)?.let {
+            val member = Member(sessionId, data?.member?.name.orEmpty())
             it.members.add(member)
-            sessionService.send(sessionId, Command.JOIN_TO_LOBBY_SUCCESS, lobbyId)
-            sessionService.send(it.hostSessionId, Command.JOIN_PARTY_MEMBER_SUCCESS, lobbyId)
+
+            val lobbyDto = Converters.toLobbyDto(it)
+            sessionService.send(sessionId, Command.JOIN_TO_LOBBY_SUCCESS, lobbyDto)
+            sessionService.send(it.hostSessionId, Command.JOIN_PARTY_MEMBER_SUCCESS, lobbyDto)
         }
 
 
     }
 
-    fun readyToStart(sessionId: String, data: Any?) {
+    fun readyToStart(sessionId: String, memberDto: MemberDto?) {
 
     }
 
-    fun forceStart(sessionId: String, data: Any?) {
+    fun forceStart(sessionId: String) {
 
     }
+
+
 }

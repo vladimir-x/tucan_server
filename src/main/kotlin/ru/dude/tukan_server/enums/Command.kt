@@ -10,6 +10,7 @@ enum class Command {
     //receive
     CREATE_LOBBY,
     CLOSE_LOBBY,
+    CLOSE_MULTIPLAYER,
     JOIN_TO_LOBBY,
     READY_TO_START,
     FORCE_START,
@@ -19,6 +20,9 @@ enum class Command {
     CREATE_LOBBY_SUCCESS,
     JOIN_TO_LOBBY_SUCCESS,
     JOIN_PARTY_MEMBER_SUCCESS,
+    LEAVE_PARTY_MEMBER_SUCCESS,
+    CLOSE_LOBBY_SUCCESS,
+    ;
 
 
 }
