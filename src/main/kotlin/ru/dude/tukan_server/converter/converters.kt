@@ -1,7 +1,7 @@
 package ru.dude.tukan_server.converter
 
-import ru.dude.tukan_server.dto.LobbyDto
-import ru.dude.tukan_server.dto.MemberDto
+import ru.dude.tukan_server.dto.*
+import ru.dude.tukan_server.entity.GameState
 import ru.dude.tukan_server.entity.Lobby
 import ru.dude.tukan_server.entity.Member
 
@@ -12,7 +12,22 @@ import ru.dude.tukan_server.entity.Member
  */
 object Converters {
 
-    public fun toLobbyDto(lobby: Lobby) = LobbyDto(lobby.lobbyId, lobby.members.map { toMemberDto(it) })
+    fun toLobbyDto(lobby: Lobby) = LobbyDto(
+        lobby.lobbyId,
+        lobby.members.map { toMemberDto(it) },
+        toGameStateDto(lobby.gameState.get())
+    )
 
-    public fun toMemberDto(member: Member) = MemberDto(member.memberId, member.name)
+    fun toMemberDto(member: Member) = MemberDto(member.memberId, member.name)
+
+    fun toGameStateDto(state: GameState?) = state?.let {
+        GameStateDto(
+            state.island.name,
+            state.island.roundCount,
+            state.gameStart,
+            state.gameEnd,
+            state.currentRound,
+            state.currentTurn
+        )
+    }
 }

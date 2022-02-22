@@ -34,7 +34,7 @@ class CommandService(
             Command.CLOSE_MULTIPLAYER -> lobbyService.closeMultiplayer(sessionId)
             Command.JOIN_TO_LOBBY -> lobbyService.joinToLobby(sessionId, readValue(json))
             Command.READY_TO_START -> lobbyService.readyToStart(sessionId, readValue(json))
-            Command.FORCE_START -> lobbyService.forceStart(sessionId)
+            Command.FORCE_START -> lobbyService.forceStart(sessionId, readValue(json))
         }
 
     }
